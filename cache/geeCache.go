@@ -26,6 +26,12 @@ var (
 	group map[string]*Group
 )
 
+func GetGroup(name string) *Group {
+	mu.Lock()
+	defer mu.Unlock()
+	return group[name]
+}
+
 func NewGroup(name string, callBack CacheCallBack, MaxCacheCap int64) *Group {
 	if callBack == nil {
 		//if not have data, can use callBack to laod data
