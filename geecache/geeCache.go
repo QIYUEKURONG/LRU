@@ -39,11 +39,16 @@ func NewGroup(name string, callBack CacheCallBack, MaxCacheCap int64) *Group {
 	}
 	mu.Lock()
 	defer mu.Unlock()
+	if len(group) == 0 {
+		group = make(map[string]*Group)
+	}
+
 	if item, ok := group[name]; ok {
 		return item
 	}
-
-	return &Group{Name: name, CallBack: callBack, MainCache: &cache{cacheCapacity: MaxCacheCap}}
+	newGroup := &Group{Name: name, CallBack: callBack, MainCache: &cache{cacheCapacity: MaxCacheCap}}
+	group[name] = newGroup
+	return newGroup
 }
 
 func (g *Group) GetKey(key string) (ByteView, error) {
