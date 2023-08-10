@@ -1,11 +1,12 @@
 package consistenthash
 
 import (
+	"hash/crc32"
 	"sort"
 	"strconv"
 )
 
-type hash func([]byte) int
+type hash func([]byte) uint32
 
 type HashMap struct {
 	//product hash value by hashFunc
@@ -19,11 +20,15 @@ type HashMap struct {
 }
 
 func NewHashMap(hashFunc hash, replicas int) *HashMap {
-	return &HashMap{
+	hashMapNode := HashMap{
 		hashFunc: hashFunc,
 		replicas: replicas,
 		hashMap:  make(map[int]string),
 	}
+	if hashMapNode.hashFunc == nil {
+		hashMapNode.hashFunc = crc32.ChecksumIEEE
+	}
+	return &hashMapNode
 }
 
 func (h *HashMap) Add(keys ...string) {
@@ -33,8 +38,8 @@ func (h *HashMap) Add(keys ...string) {
 	for _, key := range keys {
 		for i := 0; i < h.replicas; i++ {
 			hashV := h.hashFunc([]byte(strconv.Itoa(i) + key))
-			h.keys = append(h.keys, hashV)
-			h.hashMap[hashV] = key
+			h.keys = append(h.keys, int(hashV))
+			h.hashMap[int(hashV)] = key
 		}
 	}
 	sort.Ints(h.keys)
@@ -47,7 +52,7 @@ func (h *HashMap) Get(key string) string {
 	hashV := h.hashFunc([]byte(key))
 
 	idx := sort.Search(len(h.keys), func(i int) bool {
-		return h.keys[i] >= hashV
+		return h.keys[i] >= int(hashV)
 	})
 
 	return h.hashMap[h.keys[idx%len(h.keys)]]

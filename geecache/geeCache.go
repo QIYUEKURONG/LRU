@@ -9,6 +9,7 @@ type Group struct {
 	Name      string
 	CallBack  CacheCallBack
 	MainCache *cache
+	Peers     PeerPicker
 }
 
 type CacheCallBack interface {
