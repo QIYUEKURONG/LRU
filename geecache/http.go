@@ -42,7 +42,6 @@ func (p *HttpPool) Set(peers ...string) {
 			baseURL: peer + p.basePath,
 		}
 	}
-
 }
 
 func (p *HttpPool) PeerPicker(key string) (PeerGetter, bool) {
@@ -119,3 +118,6 @@ func (p *HttpGetter) Get(group string, key string) ([]byte, error) {
 
 	return bytes, nil
 }
+
+// can check if object that come true the interface all method
+var _ PeerGetter = (*HttpGetter)(nil)
