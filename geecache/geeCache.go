@@ -52,6 +52,36 @@ func NewGroup(name string, callBack CacheCallBack, MaxCacheCap int64) *Group {
 	return newGroup
 }
 
+func (g *Group) Get(key string) (ByteView, error) {
+	if key == "" {
+		return ByteView{}, fmt.Errorf("parameter error")
+	}
+
+	if v, ok := g.MainCache.get(key); ok {
+		return v, fmt.Errorf("cache not find key")
+	}
+
+	return g.loadPeer(key)
+}
+
+func (g *Group) GetFromPeer(pe PeerGetter, key string) (ByteView, error) {
+	resultBytes, err := pe.loadPeer(key)
+
+}
+
+func (g *Group) loadPeer(key string) (ByteView, error) {
+	if g.Peers != nil {
+		if peerGetter, ok := g.Peers.PeerPicker(key); ok {
+			if value, err := g.GetFromPeer(peerGetter, key); err == nil {
+				return value, nil
+			}
+		}
+
+	}
+
+	return g.loadCallBack(key)
+}
+
 func (g *Group) GetKey(key string) (ByteView, error) {
 
 	if key == "" {

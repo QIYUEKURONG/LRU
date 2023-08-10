@@ -21,7 +21,15 @@ func SetServerCache(selfAdds string, adds []string, geeCache *geecache.Group) {
 	log.Fatal(http.ListenAndServe(selfAdds[7:], httpPools))
 }
 
-//func ServerSelectRequest(key string)
+func ServerSelectRequest(key string, geeCache *geecache.Group) {
+	http.Handle("/api", http.HandlerFunc(
+		func(w http.ResponseWriter, r *http.Request) {
+			key := r.URL.Query().Get("key")
+			geeCache.GetKey()
+
+		}))
+
+}
 
 func main() {
 	geecache := geecache.NewGroup("name", geecache.CacheCallBackFunc(
